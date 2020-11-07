@@ -25,9 +25,5 @@ class Traffic(ABC):
         pass
 
     @abstractmethod
-    def get_time():
-        pass
-
-    @abstractmethod
     def update_table():
         pass
