@@ -11,25 +11,46 @@ JSON = TypeVar("json")
 class Outer(Traffic):
     def __init__(self, total_floor: int):
         self.dates = 0
+        self.total_floor = total_floor
         self.lookup = dict()
 
         self.lookup[Traffic.UP] = dict()
         self.lookup[Traffic.DOWN] = dict()
 
-        for floor_id in range(1, total_floor+1):
-            self.lookup[Traffic.UP][floor_id] = 0.0
-            self.lookup[Traffic.DOWN][floor_id] = 0.0
+        for floor in range(1, total_floor+1):
+            self.lookup[Traffic.UP][floor] = 0.0
+            self.lookup[Traffic.DOWN][floor] = 0.0
 
-    def get_prediction(self, elev_floor: int, user_floor: int) -> JSON:
-        def is_up(elev_floor, user_floor):
+    def get_prediction(self, elev_floor: int, user_floor: int) -> dict:
+        def is_above(elev_floor, user_floor):
             return elev_floor > user_floor
 
         open_time, close_time, move_time = Traffic.OPEN_TIME, Traffic.OPEN_TIME, Traffic.TIME_PER_PERSON
-        direction = Traffic.UP if is_up(
-            elev_floor, user_floor) else Traffic.DOWN
-        ret = defaultdict(dict)
-        for direction, info in self.lookup.items():
-            ret[direction] = info
+        above = is_above(elev_floor, user_floor)
+
+        ret = dict()
+        direction = Traffic.UP if above else Traffic.DOWN
+        calculated_floors = set()
+
+        for floor in range(min(user_floor, elev_floor), max(user_floor, elev_floor)):
+            calculated_floors.add(floor)
+            ret[floor] = dict()
+            ret[floor] = self.lookup[direction][floor] * \
+                move_time + open_time + close_time
+
+        for floor in range(1, self.total_floor+1):
+            if floor in calculated_floors:
+                continue
+
+            for direction in [Traffic.UP, Traffic.DOWN]:
+                if floor not in ret:
+                    ret[floor] = dict()
+                    ret[floor] = self.lookup[direction][floor] * \
+                        move_time + open_time + close_time
+                else:
+                    ret[floor] += self.lookup[direction][floor] * \
+                        move_time + open_time + close_time
+        return ret
 
     def _calculate_time(self):
         pass

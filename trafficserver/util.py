@@ -18,3 +18,17 @@ def generate_random_user_outer(floors: int) -> JSON:
         ret[time] = infos
 
     return json.dumps(ret)
+
+
+def calc_total(traffic, target_floor, elev_floor, user_floor):
+    ret = 0
+    floor_cache = set()
+    # inbound calc
+    for floor in (min(elev_floor, user_floor), max(elev_floor, user_floor)):
+        floor_cache.add(floor)
+        ret += traffic[floor]
+
+    # outbound calc
+    for floor in range(1, len(traffic)+1):
+        if floor in floor_cache:
+            continue
