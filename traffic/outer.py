@@ -22,6 +22,8 @@ class Outer(Traffic):
                 self.lookup[elev_id][Traffic.DOWN][floor_id] = 0
 
     def get_prediction(self, current_floor: int, target_floor: int) -> JSON:
+        self._calculate_time()
+        self._calculate_traffic()
         pass
 
     def _calculate_time(self):
@@ -30,18 +32,12 @@ class Outer(Traffic):
     def _calculate_traffic(self):
         pass
 
-    def get_traffic(self):
-        pass
-
-    def get_time(self, ):
-        pass
-
     def update_table(self, time_user: JSON, elev_id: int):
         """ update look up table
         args:
             time_user, JSON: one day logged data that has average number of people per hour
             {time: [direction:bool, floor:int, num_of_enter:float]
-            {0 : [UP, 3, 13.5], 1: [DOWN, 5, 12.3] ...}
+            {0 :[[UP, 3, 13.5]], 1: [[DOWN, 5, 2.3]] ...}
         """
         time_user_dict = json.loads(time_user)
 
