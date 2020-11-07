@@ -2,29 +2,32 @@ from abc import ABC, abstractmethod
 
 
 class Traffic(ABC):
-    def __init__(self):
+    UP = True
+    DOWN = False
+
+    def __init__():
         pass
 
     @abstractmethod
-    def get_prediction(**kwargs):
+    def get_prediction():
         pass
 
     @abstractmethod
-    def _calculate_time(**kwargs):
+    def _calculate_time():
         pass
 
     @abstractmethod
-    def _calculate_traffic(**kwargs):
+    def _calculate_traffic():
         pass
 
     @abstractmethod
-    def get_traffic(**kwargs):
+    def get_traffic():
         pass
 
     @abstractmethod
-    def get_time(**kwargs):
+    def get_time():
         pass
 
     @abstractmethod
-    def update_table(**kwargs):
+    def update_table():
         pass
