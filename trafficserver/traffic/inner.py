@@ -8,12 +8,13 @@ JSON = TypeVar("json")
 
 
 class Inner(Traffic):
-    def __init__(self, total_floor: int, num_of_elevs: int):
+    def __init__(self, total_floor: int):
         self.lookup = dict()
 
         self.lookup["num"] = 0
         self.lookup["users"] = dict()
         self.uid_set = set()
+        self.total_floor = total_floor
 
     def get_prediction(self, user_floor: int, target_floor: int) -> dict:
         pass
@@ -74,7 +75,22 @@ class Inner(Traffic):
 
         update_probs(floor-1, deleted_info)
 
-    def update_table(self, floor: int, elevetor_user: JSON):
+    def _enter_handler(self, enter_nums, calls):
+        used_uids = self.uid_set
+        uid = 0
+        while enter_nums:
+            while uid in used_uids:
+                uid += 1
+
+            users = self.lookup["users"]
+            used_uids.add(uid)
+            users[uid] = [0 for _ in range(self.total_floor)]
+            for call in calls:
+                user[uid][call - 1] = 1 / len(calls)
+
+            enter_nums -= 1
+
+    def update_table(self, floor: int, elevetor_user: JSON, calls: list):
         """ update lookup
         args:
             elevator_user, JSON: human after door closed
@@ -89,6 +105,8 @@ class Inner(Traffic):
         self.lookup["nums"] += (enter_nums - exit_nums)
 
         self._exit_handler(exit_nums, floor)
+
+        self._enter_handler(enter_nums)
 
         assert lookup["nums"] == len(
             self.lookup["users"]), print("Update operates fail")
