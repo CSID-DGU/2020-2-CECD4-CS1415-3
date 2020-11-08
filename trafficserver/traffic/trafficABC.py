@@ -24,9 +24,5 @@ class Traffic(ABC):
         pass
 
     @abstractmethod
-    def get_traffic():
-        pass
-
-    @abstractmethod
     def update_table():
         pass

@@ -1,4 +1,4 @@
-from traffic import outer  # , inner
+from traffic import outer, inner
 import util
 
 if __name__ == "__main__":

@@ -1,11 +1,3 @@
-
-
-# 내부 트래픽 정보 : 인원, 눌려있는 층
-# 
-# 각 호기에 대해 눌려있는지 여부를 정보로 담고 있어야 함(True, False)
-# 
-# estimated_time : get_prediction함수 통해서 눌려있는 각 층 정보 계산 후 current부터 target floor까지 멈춰있을 시간 계산
-
 import json
 from pprint import pprint
 
@@ -17,59 +9,86 @@ JSON = TypeVar("json")
 
 class Inner(Traffic):
     def __init__(self, total_floor: int, num_of_elevs: int):
-        self.elevatorStatus = dict()
+        self.lookup = dict()
 
-        for elev_id in range(1, num_of_elevs+1):
-            self.elevatorStatus[elev_id] = dict()
-            self.elevatorStatus[elev_id][Traffic.UP] = dict()
-            self.elevatorStatus[elev_id][Traffic.DOWN] = dict()
+        self.lookup["num"] = 0
+        self.lookup["users"] = dict()
+        self.uid_set = set()
 
-            for floor_id in range(1, total_floor+1):
-                self.elevatorStatus[elev_id][Traffic.UP][floor_id] = 0
-                self.elevatorStatus[elev_id][Traffic.DOWN][floor_id] = 0
-
-    def get_prediction(self, current_floor: int, target_floor: int) -> JSON:
-        self._calculate_time()      # 멈춰있을 시간 계산
-        self._calculate_traffic()   # 탈 수 있는지 여부에 대해 알려주기 위해 traffic 정보 계산해야함
+    def get_prediction(self, user_floor: int, target_floor: int) -> dict:
         pass
 
     def _calculate_time(self, current, target):
-        '''
-        ret = dict()
-        request_json = json.loads(calc_request)
-
-        for i in range(1, num_of_elevs+1):
-            stopped_time = 0
-            # 엘리베이터가 상승 중
-
-            # 엘리베이터가 하강 중
-            for floor in range()
-        '''
         pass
 
     def _calculate_traffic(self):
         pass
 
-    def get_traffic():
-        pass
+    def _delete_table(self, exit_nums: int, floor: int):
+        def find_uids(nums, floor):
+            users = self.lookup["users"]
 
-    def get_time():
-        pass
+            assert len(users) >= nums, print(
+                "try to exit while there's not enough people")
 
-    def update_table(self, target_call: JSON):#When call occurs(in elevator)
-        """ update elevatorTable
+            stack = []
+
+            for uid, probs in users.items():
+                prob = probs[floor]
+
+                if not stack:
+                    stack.append([prob, uid])
+                    continue
+
+                if prob > stack[0][0]:
+                    if len(stack) >= nums:
+                        stack.pop()
+                        stack.append([prob, uid])
+                    stack.append([prob, uid])
+
+                stack.sort(key=lambda x: -x[0])
+
+            for _, uid in stack:
+                users.pop(uid, None)
+
+            return stack
+
+        def update_probs(floor: int, deleted_info: list[list]) -> None:
+            probs = sorted(
+                list(map(lambda x: x[0], deleted_info)), reverse=True)
+
+            users = self.lookup["users"]
+
+            for prob in probs:
+                need_to_change = int(1/prob) - 1
+                for user, prob_table in user.items():
+                    if not need_to_chage:
+                        break
+                    if prob_table[floor] == prob:
+                        users[user][floor] = 1 / ((1/prob) + 1)
+
+        deleted_info = find_uids(exit_nums, floor-1)
+
+        for _, uid in deleted_info:
+            self.uid_set.remove(uid)
+
+        update_probs(floor-1, deleted_info)
+
+    def update_table(self, floor: int, elevetor_user: JSON):
+        """ update lookup
         args:
-            direction => False : Going Down, True : Going Up
-            time_user, JSON: target_call data which occurs by passengers in Elevator(target_floor, elev_id)
-            {elev_id: [direction:bool, current_floor:int, target_floor:int]}
-            {1 :[False, 3], 2: [True, 5] ...}
+            elevator_user, JSON: human after door closed
+            {"enter_nums": num, "exit_nums": num}
         """
-        call_json = json.loads(target_call)
-        for elev_id, info in call_json.items():
-            direction, target_floor = info
-            print(elev_id)
-            pprint(self.elevatorStatus[2])
-            exit()   
-            #self.elevatorStatus[elev_id][direction][target_floor] += 1
-        
-        pprint(self.elevatorStatus)
+
+        elevator_user_dict = json.loads(elevator_user)
+
+        enter_nums = elevator_user_dict["enter_nums"]
+        exit_nums = elevator_user_dict["exit_nums"]
+
+        self.lookup["nums"] += (enter_nums - exit_nums)
+
+        self._delete_handler(exit_nums, floor)
+
+        assert lookup["nums"] == len(
+            self.lookup["users"]), print("Update operates fail")
