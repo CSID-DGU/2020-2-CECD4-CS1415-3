@@ -25,7 +25,7 @@ class Outer(Traffic):
         def is_above(elev_floor, user_floor):
             return elev_floor > user_floor
 
-        open_time, close_time, move_time = Traffic.OPEN_TIME, Traffic.OPEN_TIME, Traffic.TIME_PER_PERSON
+        move_time = Traffic.TIME_PER_PERSON
         above = is_above(elev_floor, user_floor)
 
         ret = dict()
@@ -34,9 +34,7 @@ class Outer(Traffic):
 
         for floor in range(min(user_floor, elev_floor), max(user_floor, elev_floor)):
             calculated_floors.add(floor)
-            ret[floor] = dict()
-            ret[floor] = self.lookup[direction][floor] * \
-                move_time + open_time + close_time
+            ret[floor] = self.lookup[direction][floor] * move_time
 
         for floor in range(1, self.total_floor+1):
             if floor in calculated_floors:
@@ -44,12 +42,9 @@ class Outer(Traffic):
 
             for direction in [Traffic.UP, Traffic.DOWN]:
                 if floor not in ret:
-                    ret[floor] = dict()
-                    ret[floor] = self.lookup[direction][floor] * \
-                        move_time + open_time + close_time
+                    ret[floor] = self.lookup[direction][floor] * move_time
                 else:
-                    ret[floor] += self.lookup[direction][floor] * \
-                        move_time + open_time + close_time
+                    ret[floor] += self.lookup[direction][floor] * move_time
         return ret
 
     def _calculate_time(self):

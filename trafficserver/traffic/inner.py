@@ -17,7 +17,16 @@ class Inner(Traffic):
         self.total_floor = total_floor
 
     def get_prediction(self, user_floor: int, target_floor: int) -> dict:
-        pass
+        ret = dict()
+        for floor in range(1, self.total_floor+1):
+            ret[floor] = 0
+
+        users = self.lookup["users"]
+        for user, probs in users.items():
+            for idx, prob in enumerate(probs):
+                ret[idx+1] += prob
+
+        return ret
 
     def _calculate_time(self, current, target):
         pass
@@ -55,25 +64,26 @@ class Inner(Traffic):
             return stack
 
         def update_probs(floor: int, deleted_info: list[list]) -> None:
-            probs = sorted(
-                list(map(lambda x: x[0], deleted_info)), reverse=True)
-
+            THRESHOLD = 0.005
             users = self.lookup["users"]
 
-            for prob in probs:
-                need_to_change = int(1/prob) - 1
-                for user, prob_table in user.items():
-                    if not need_to_chage:
-                        break
-                    if prob_table[floor] == prob:
-                        users[user][floor] = 1 / ((1/prob) + 1)
+            for user, probs in users.items():
+                if probs[floor] > THRESHOLD:
+                    for idx, prob in enumerate(probs):
+                        if prob > THRESHOLD:
+                            probs[idx] = 1/((1/prob) + 1)
 
-        deleted_info = find_uids(exit_nums, floor-1)
+            for user, probs in user.items():
+                if sum(probs) > 1.0001 and sum(probs) < 0.9999999:
+                    raise ValueError("Sum should be 1")
+
+        floor -= 1
+        deleted_info = find_uids(exit_nums, floor)
 
         for _, uid in deleted_info:
             self.uid_set.remove(uid)
 
-        update_probs(floor-1, deleted_info)
+        update_probs(floor, deleted_info)
 
     def _enter_handler(self, enter_nums, calls):
         used_uids = self.uid_set
