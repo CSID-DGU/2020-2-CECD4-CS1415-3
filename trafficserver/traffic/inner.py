@@ -24,7 +24,7 @@ class Inner(Traffic):
     def _calculate_traffic(self):
         pass
 
-    def _delete_table(self, exit_nums: int, floor: int):
+    def _exit_handler(self, exit_nums: int, floor: int):
         def find_uids(nums, floor):
             users = self.lookup["users"]
 
@@ -88,7 +88,7 @@ class Inner(Traffic):
 
         self.lookup["nums"] += (enter_nums - exit_nums)
 
-        self._delete_handler(exit_nums, floor)
+        self._exit_handler(exit_nums, floor)
 
         assert lookup["nums"] == len(
             self.lookup["users"]), print("Update operates fail")
