@@ -1,5 +1,6 @@
 import json
 from pprint import pprint
+from typing import List
 
 from traffic.trafficABC import Traffic
 from typing import TypeVar
@@ -11,7 +12,7 @@ class Inner(Traffic):
     def __init__(self, total_floor: int):
         self.lookup = dict()
 
-        self.lookup["num"] = 0
+        self.lookup["nums"] = 0
         self.lookup["users"] = dict()
         self.uid_set = set()
         self.total_floor = total_floor
@@ -63,7 +64,7 @@ class Inner(Traffic):
 
             return stack
 
-        def update_probs(floor: int, deleted_info: list[list]) -> None:
+        def update_probs(floor: int, deleted_info: List[List]) -> None:
             THRESHOLD = 0.005
             users = self.lookup["users"]
 
@@ -73,7 +74,7 @@ class Inner(Traffic):
                         if prob > THRESHOLD:
                             probs[idx] = 1/((1/prob) + 1)
 
-            for user, probs in user.items():
+            for user, probs in users.items():
                 if sum(probs) > 1.0001 and sum(probs) < 0.9999999:
                     raise ValueError("Sum should be 1")
 
@@ -88,6 +89,7 @@ class Inner(Traffic):
     def _enter_handler(self, enter_nums, calls):
         used_uids = self.uid_set
         uid = 0
+
         while enter_nums:
             while uid in used_uids:
                 uid += 1
@@ -96,15 +98,16 @@ class Inner(Traffic):
             used_uids.add(uid)
             users[uid] = [0 for _ in range(self.total_floor)]
             for call in calls:
-                user[uid][call - 1] = 1 / len(calls)
+                users[uid][call - 1] = 1 / len(calls)
 
             enter_nums -= 1
 
-    def update_table(self, floor: int, elevetor_user: JSON, calls: list):
+    def update_table(self, floor: int, elevator_user: JSON, calls: list):
         """ update lookup
         args:
-            elevator_user, JSON: human after door closed
-            {"enter_nums": num, "exit_nums": num}
+            floor: current floor
+            elevator_user: human after door closed {"enter_nums": num, "exit_nums": num}
+            calls: [1, 3, 4, 5, 6]
         """
 
         elevator_user_dict = json.loads(elevator_user)
@@ -114,9 +117,12 @@ class Inner(Traffic):
 
         self.lookup["nums"] += (enter_nums - exit_nums)
 
+        calls.remove(floor)
         self._exit_handler(exit_nums, floor)
+        self._enter_handler(enter_nums, calls)
 
-        self._enter_handler(enter_nums)
-
-        assert lookup["nums"] == len(
+        assert self.lookup["nums"] == len(
             self.lookup["users"]), print("Update operates fail")
+
+    def get_lookup(self):
+        return self.lookup
