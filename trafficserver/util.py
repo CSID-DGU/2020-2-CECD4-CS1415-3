@@ -6,12 +6,7 @@ JSON = TypeVar("json")
 
 
 def generate_random_user_inner(total_floor: int) -> JSON:
-<<<<<<< HEAD
     pass
-=======
-    ret = dict()
-    return json.dumps(ret)
->>>>>>> 78d6f05... feat: inner lookup update testcase is added
 
 
 def generate_random_user_outer(floors: int) -> JSON:
