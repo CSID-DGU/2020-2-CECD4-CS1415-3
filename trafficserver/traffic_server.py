@@ -15,7 +15,6 @@ def main():
     total_floors = 15
     calls = [2, 5, 7]
 
-    # initiate
     outer_traffic = outer.Outer(total_floors)
     inner_traffic = inner.Inner(total_floors)
 
