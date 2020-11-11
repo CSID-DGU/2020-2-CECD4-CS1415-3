@@ -14,6 +14,7 @@ class Inner(Traffic):
 
         self.lookup["nums"] = 0
         self.lookup["users"] = dict()
+
         self.uid_set = set()
         self.total_floor = total_floor
 
@@ -117,7 +118,8 @@ class Inner(Traffic):
 
         self.lookup["nums"] += (enter_nums - exit_nums)
 
-        calls.remove(floor)
+        if floor in calls:
+            calls.remove(floor)
         self._exit_handler(exit_nums, floor)
         self._enter_handler(enter_nums, calls)
 
