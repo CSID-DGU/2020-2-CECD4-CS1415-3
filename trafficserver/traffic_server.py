@@ -21,6 +21,11 @@ if __name__ == "__main__":
     for _ in range(3):
         outer_traffic.update_table(outer_dummpy)  # per day
 
+    # INNER TEST
+
+    util.generate_random_user_inner()
+    ###
+
     # predict floors
     outer_traffic_predict = outer_traffic.get_prediction(
         user_floor, elev_floor)
