@@ -6,8 +6,7 @@ JSON = TypeVar("json")
 
 
 def generate_random_user_inner(total_floor: int) -> JSON:
-    ret = dict()
-    return json.dumps(ret)
+    pass
 
 
 def generate_random_user_outer(floors: int) -> JSON:

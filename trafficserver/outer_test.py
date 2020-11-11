@@ -10,10 +10,13 @@ if __name__ == "__main__":
 
     outer_traffic = outer.Outer(total_floors)
 
+    # once per day
     for _ in range(3):
         outer_dummpy = util.generate_random_user_outer(total_floors)
         outer_traffic.update_table(outer_dummpy)
 
+    time = 4
+    print(f"TIME: {time}")
     outer_traffic_predict = outer_traffic.get_prediction(
-        user_floor, elev_floor)
+        user_floor, elev_floor, time)
     pprint(outer_traffic_predict)
