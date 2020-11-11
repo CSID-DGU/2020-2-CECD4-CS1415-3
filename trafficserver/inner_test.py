@@ -1,5 +1,4 @@
 from pprint import pprint
-import util
 import json
 from traffic import inner
 
