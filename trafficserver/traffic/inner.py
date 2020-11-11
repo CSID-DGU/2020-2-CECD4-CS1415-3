@@ -17,7 +17,7 @@ class Inner(Traffic):
         self.uid_set = set()
         self.total_floor = total_floor
 
-    def get_prediction(self, user_floor: int, target_floor: int) -> dict:
+    def get_prediction(self, user_floor: int) -> dict:
         ret = dict()
         for floor in range(1, self.total_floor+1):
             ret[floor] = 0
@@ -29,7 +29,7 @@ class Inner(Traffic):
 
         return ret
 
-    def _calculate_time(self, current, target):
+    def _calculate_time(self):
         pass
 
     def _calculate_traffic(self):
@@ -47,14 +47,13 @@ class Inner(Traffic):
             for uid, probs in users.items():
                 prob = probs[floor]
 
-                if not stack:
+                if len(stack) < nums:
                     stack.append([prob, uid])
                     continue
 
                 if prob > stack[0][0]:
                     if len(stack) >= nums:
                         stack.pop()
-                        stack.append([prob, uid])
                     stack.append([prob, uid])
 
                 stack.sort(key=lambda x: -x[0])
@@ -70,6 +69,7 @@ class Inner(Traffic):
 
             for user, probs in users.items():
                 if probs[floor] > THRESHOLD:
+                    probs[floor] = 0
                     for idx, prob in enumerate(probs):
                         if prob > THRESHOLD:
                             probs[idx] = 1/((1/prob) + 1)
@@ -123,7 +123,7 @@ class Inner(Traffic):
         self._enter_handler(enter_nums, calls)
 
         assert self.lookup["nums"] == len(
-            self.lookup["users"]), print("Update operates fail")
+            self.lookup["users"]), print("{} != {}".format(self.lookup['nums'], len(self.lookup['users'])))
 
     def get_lookup(self):
         return self.lookup
