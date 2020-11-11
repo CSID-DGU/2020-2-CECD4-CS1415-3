@@ -1,9 +1,8 @@
 import json
 from pprint import pprint
-from typing import List
+from typing import TypeVar, List
 
 from traffic.trafficABC import Traffic
-from typing import TypeVar
 
 JSON = TypeVar("json")
 
@@ -76,7 +75,7 @@ class Inner(Traffic):
                             probs[idx] = 1/((1/prob) + 1)
 
             for user, probs in users.items():
-                if sum(probs) > 1.0001 and sum(probs) < 0.9999999:
+                if sum(probs) > 1.0001 and sum(probs) < 0.9999:
                     raise ValueError("Sum should be 1")
 
         floor -= 1
