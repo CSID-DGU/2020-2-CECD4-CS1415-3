@@ -26,6 +26,9 @@ print("*"*40)
 test.update_table(floor, usage_info, calls)
 pprint(test.get_lookup())
 
+print("=============FIRST RESULT ===============")
+pprint(test.get_prediction(floor))
+
 floor = 5
 usage_info = {
     "enter_nums": 1,
@@ -33,8 +36,6 @@ usage_info = {
 }
 calls = [1, 2, 3, 6]
 
-print("=============FIRST RESULT ===============")
-pprint(test.get_prediction(floor))
 
 print("=============SECOND UPDATE===============")
 print(f"User enters at floor {floor}")
