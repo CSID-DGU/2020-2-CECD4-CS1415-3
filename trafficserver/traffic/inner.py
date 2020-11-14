@@ -72,7 +72,7 @@ class Inner(Traffic):
                     probs[floor] = 0
                     for idx, prob in enumerate(probs):
                         if prob > THRESHOLD:
-                            probs[idx] = 1/((1/prob) + 1)
+                            probs[idx] = 1/((1/prob) - 1)
 
             for user, probs in users.items():
                 if sum(probs) > 1.0001 and sum(probs) < 0.9999:
@@ -105,7 +105,7 @@ class Inner(Traffic):
     def update_table(self, floor: int, elevator_user: JSON, calls: list):
         """ update lookup
         args:
-            floor: current floor
+            floor: current elevator floor
             elevator_user: human after door closed {"enter_nums": num, "exit_nums": num}
             calls: [1, 3, 4, 5, 6]
         """
