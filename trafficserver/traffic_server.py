@@ -35,8 +35,10 @@ def main(user_floor, elev_floor, total_floors, calls, time):
     inner_traffic_predict = inner_traffic.get_prediction(
         user_floor)
 
-    print(outer_traffic_predict)
-    print(inner_traffic_predict)
+    traffic_predict = dict()
+    for floor, time in outer_traffic_predict.items():
+        traffic_predict[floor] = time + inner_traffic_predict[floor]
+    pprint(traffic_predict)
 
 
 if __name__ == "__main__":
