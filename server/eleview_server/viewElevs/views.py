@@ -23,24 +23,3 @@ class elevatorView(APIView):
         res = (ts.main(user_floor, elev_floor, total_floors, calls, time, UP))
         print(res)
         return JsonResponse(res, safe=False)
-        '''
-        request = json.loads(request.body)
-        try:
-            # fp_id 일치하는 user_id 조회
-            usercard = get_object_or_404(Users, fp_id=request['fp_id'])
-            # user_id와 일치하는 cardInfo_id 조회
-            cardlist = Cards.objects.filter(user_id = usercard.user_id)
-        except:
-            errMsg = {
-                'errMsg': 'Input Json Invalid'
-            }
-            return JsonResponse(errMsg, safe=False)
-        finally:
-            # cardInfo_id와 일치하는 카드 정보들 조회
-            contents = []
-            for card in cardlist:
-                cards = get_object_or_404(CardDetail, cardInfo_id = card.cardInfo_id)
-                content = {'name': cards.card_name, 'company': cards.card_company}
-                contents.append(content)
-            return JsonResponse(contents, safe=False)
-        '''
