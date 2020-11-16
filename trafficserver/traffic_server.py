@@ -45,7 +45,8 @@ def main(user_floor, elev_floor, total_floors, calls, time, direction):
     estimated_time = 0
     cur_floor = bottom_floor
     while cur_floor < above_floor:
-        estimated_time = traffinc_predict[cur_floor]
+        estimated_time = traffic_predict[cur_floor]
+        cur_floor += 1
 
     estimated_traffic = 3
 
@@ -65,4 +66,4 @@ if __name__ == "__main__":
     time = 14
     UP = True
     DOWN = False
-    main(user_floor, elev_floor, total_floors, calls, time, UP)
+    print(main(user_floor, elev_floor, total_floors, calls, time, UP))
