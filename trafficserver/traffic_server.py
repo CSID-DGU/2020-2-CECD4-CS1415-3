@@ -13,7 +13,7 @@ def update_traffic():
     pass
 
 
-def main(user_floor, elev_floor, total_floors, calls, time):
+def main(user_floor, elev_floor, total_floors, calls, time, direction):
     outer_traffic = outer.Outer(total_floors)
     inner_traffic = inner.Inner(total_floors)
 
@@ -35,8 +35,27 @@ def main(user_floor, elev_floor, total_floors, calls, time):
     inner_traffic_predict = inner_traffic.get_prediction(
         user_floor)
 
-    print(outer_traffic_predict)
-    print(inner_traffic_predict)
+    traffic_predict = dict()
+    for floor, time in outer_traffic_predict.items():
+        traffic_predict[floor] = time + inner_traffic_predict[floor]
+
+    bottom_floor = min(user_floor, elev_floor)
+    above_floor = max(user_floor, elev_floor)
+
+    estimated_time = 0
+    cur_floor = bottom_floor
+    while cur_floor < above_floor:
+        estimated_time = traffic_predict[cur_floor]
+        cur_floor += 1
+
+    estimated_traffic = 3
+
+    ret = dict()
+    ret["estimated_time"] = estimated_time
+    ret["estimated_traffic"] = estimated_traffic
+
+    ret_json = json.dumps(ret)
+    return ret_json
 
 
 if __name__ == "__main__":
@@ -45,4 +64,6 @@ if __name__ == "__main__":
     total_floors = 15
     calls = [2, 5, 7]
     time = 14
-    main(user_floor, elev_floor, total_floors, calls, time)
+    UP = True
+    DOWN = False
+    print(main(user_floor, elev_floor, total_floors, calls, time, UP))

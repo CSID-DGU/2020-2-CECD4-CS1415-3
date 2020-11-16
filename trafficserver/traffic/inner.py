@@ -18,14 +18,18 @@ class Inner(Traffic):
         self.total_floor = total_floor
 
     def get_prediction(self, user_floor: int) -> dict:
+        move_time = Traffic.TIME_PER_PERSON
+
         ret = dict()
+
         for floor in range(1, self.total_floor+1):
             ret[floor] = 0
 
         users = self.lookup["users"]
+
         for user, probs in users.items():
             for idx, prob in enumerate(probs):
-                ret[idx+1] += prob
+                ret[idx+1] += (prob * move_time)
 
         return ret
 

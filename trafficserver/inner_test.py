@@ -13,6 +13,8 @@ usage_info = {
 }
 calls = [1, 3, 5, 6]
 
+calls = [1, 3, 5, 6]
+
 print("=============FIRST UPDATE===============")
 print(f"User enters at floor {floor}")
 print("Enter & Exit info")
