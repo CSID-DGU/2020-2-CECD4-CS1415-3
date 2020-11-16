@@ -24,9 +24,10 @@ def generate_random_user_outer(floors: int) -> JSON:
     return json.dumps(ret)
 
 
-def calc_total(traffic, target_floor, elev_floor, user_floor):
+def calc_total(traffic, user_floor, elev_floor,):
     ret = 0
     floor_cache = set()
+
     # inbound calc
     for floor in (min(elev_floor, user_floor), max(elev_floor, user_floor)):
         floor_cache.add(floor)
