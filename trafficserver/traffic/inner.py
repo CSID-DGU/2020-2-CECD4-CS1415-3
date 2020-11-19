@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 from typing import TypeVar, List
 
-from traffic.trafficABC import Traffic
+from .trafficABC import Traffic
 
 JSON = TypeVar("json")
 

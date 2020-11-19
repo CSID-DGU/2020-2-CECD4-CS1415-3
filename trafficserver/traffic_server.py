@@ -1,3 +1,6 @@
+import pickle
+import os
+from pathlib import Path
 import json
 from pprint import pprint
 from traffic import outer, inner
@@ -13,49 +16,112 @@ def update_traffic():
     pass
 
 
-def main(user_floor, elev_floor, total_floors, calls, time, direction):
-    outer_traffic = outer.Outer(total_floors)
-    inner_traffic = inner.Inner(total_floors)
+def initialize(e_num, total_floors):
+    nums = list(range(e_num))
 
-    for _ in range(3):
+    outers = dict()
+    inners = dict()
+    pwd = Path(os.getcwd())
+
+    for eid in nums:
+        outers[eid], inners[eid] = initialize_traffic(eid, total_floors)
+
+    with open(pwd/"data/outer.pickle", "wb") as f:
+        pickle.dump(outers, f)
+
+    with open(pwd/"data/inner.pickle", "wb") as f:
+        pickle.dump(inners, f)
+
+
+def traffics(e_num, total_floors):
+    traffics = []
+
+    while True:
+        for eid in nums:
+            traffics.append(each_traffic(user_floor, elev_floor, total_floors,
+                                         calls, time, UP, outers[eid], inners[eid], eid))
+
+
+def initialize_traffic(eid, total_floors):
+    return outer.Outer(total_floors), inner.Inner(total_floors)
+
+
+def update_outer():
+    pwd = Path(os.getcwd())
+    outer_traffic = None
+    with open(pwd/"data/outer.pickle", "rb") as f:
+        outer_traffics = pickle.load(f)
+
+    enums = len(outer_traffics)
+    for enum in range(enums):
+        outer_traffic = outer_traffics[enum]
         outer_dummy = util.generate_random_user_outer(total_floors)
-        outer_traffic.update_table(outer_dummy)  # per day
+        outer_traffic.update_table(outer_dummy)
+
+
+def predict(user_floor, elev_floor, total_floors, calls, time, direction):
+    # outer_traffic = outer.Outer(total_floors)
+    # inner_traffic = inner.Inner(total_floors)
+    outer_traffics = None
+    inner_traffics = None
+
+    pwd = Path(os.getcwd())
+
+    outer_traffic = None
+    inner_traffics = None
+
+    with open(pwd/"data/outer.pickle", "rb") as f:
+        outer_traffics = pickle.load(f)
+    enums = len(outer_traffics)
+    eids = list(range(enums))
+
+    with open(pwd/"data/inner.pickle", "rb") as f:
+        inner_traffics = pickle.load(f)
 
     usage_info = json.dumps({
         "enter_nums": 4,
         "exit_nums": 0
     })
-    calls = [1, 3, 5, 6]
-    inner_dummy = util.generate_random_user_inner(total_floors)
-    inner_traffic.update_table(elev_floor, usage_info, calls)
 
-    # predict floors
-    outer_traffic_predict = outer_traffic.get_prediction(
-        elev_floor, user_floor, time)
-    inner_traffic_predict = inner_traffic.get_prediction(
-        user_floor)
+    rets = []
 
-    traffic_predict = dict()
-    for floor, time in outer_traffic_predict.items():
-        traffic_predict[floor] = time + inner_traffic_predict[floor]
+    for eid in eids:
+        outer_traffic = outer_traffics[eid]
+        inner_traffic = inner_traffics[eid]
 
-    bottom_floor = min(user_floor, elev_floor)
-    above_floor = max(user_floor, elev_floor)
+        calls = [1, 3, 5, 6]
 
-    estimated_time = 0
-    cur_floor = bottom_floor
-    while cur_floor < above_floor:
-        estimated_time = traffic_predict[cur_floor]
-        cur_floor += 1
+        inner_dummy = util.generate_random_user_inner(total_floors)
+        inner_traffic.update_table(elev_floor, usage_info, calls)
 
-    estimated_traffic = 3
+        # predict floors
+        outer_traffic_predict = outer_traffic.get_prediction(
+            elev_floor, user_floor, time)
+        inner_traffic_predict = inner_traffic.get_prediction(
+            user_floor)
 
-    ret = dict()
-    ret["estimated_time"] = estimated_time
-    ret["estimated_traffic"] = estimated_traffic
+        traffic_predict = dict()
+        for floor, time in outer_traffic_predict.items():
+            traffic_predict[floor] = time + inner_traffic_predict[floor]
 
-    ret_json = json.dumps(ret)
-    return ret_json
+        bottom_floor = min(user_floor, elev_floor)
+        above_floor = max(user_floor, elev_floor)
+
+        time = 0
+        cur_floor = bottom_floor
+        while cur_floor < above_floor:
+            time = traffic_predict[cur_floor]
+            cur_floor += 1
+
+        estimated_traffic = 3
+
+        ret = dict()
+        ret["id"] = eid
+        ret["estimated_time"] = time
+        ret["estimated_traffic"] = estimated_traffic
+        rets.append(ret)
+
+    return rets
 
 
 if __name__ == "__main__":
@@ -66,4 +132,8 @@ if __name__ == "__main__":
     time = 14
     UP = True
     DOWN = False
-    print(main(user_floor, elev_floor, total_floors, calls, time, UP))
+    e_num = 4
+    initialize(e_num, total_floors)
+    update_outer()
+    print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
+

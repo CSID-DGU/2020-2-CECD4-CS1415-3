@@ -1,2 +1,2 @@
 # traffic init
-import traffic.trafficABC
+from traffic import trafficABC
