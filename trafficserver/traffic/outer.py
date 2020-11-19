@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 from collections import defaultdict
 
-from .trafficABC import Traffic
+from traffic.trafficABC import Traffic
 from typing import TypeVar
 
 JSON = TypeVar("json")
@@ -34,6 +34,7 @@ class Outer(Traffic):
         direction = Traffic.UP if above else Traffic.DOWN
         calculated_floors = set()
 
+        time = int(time)
         for floor in range(min(user_floor, elev_floor), max(user_floor, elev_floor)):
             calculated_floors.add(floor)
             ret[floor] = self.lookup[time][direction][floor] * move_time

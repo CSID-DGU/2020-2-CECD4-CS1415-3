@@ -6,11 +6,6 @@ from pprint import pprint
 from traffic import outer, inner
 import util
 
-"""
-Input:
-    [user_floor, elev_cur_floor, elev_info(calls,direction)]
-"""
-
 
 def update_traffic():
     pass
@@ -21,7 +16,7 @@ def initialize(e_num, total_floors):
 
     outers = dict()
     inners = dict()
-    pwd = Path(os.getcwd())
+    pwd = Path(os.path.dirname(__file__)).absolute()
 
     for eid in nums:
         outers[eid], inners[eid] = initialize_traffic(eid, total_floors)
@@ -47,25 +42,28 @@ def initialize_traffic(eid, total_floors):
 
 
 def update_outer():
-    pwd = Path(os.getcwd())
-    outer_traffic = None
+    pwd = Path(os.path.dirname(__file__)).absolute()
+    outer_traffics = None
     with open(pwd/"data/outer.pickle", "rb") as f:
         outer_traffics = pickle.load(f)
 
+    outers = dict()
     enums = len(outer_traffics)
     for enum in range(enums):
         outer_traffic = outer_traffics[enum]
         outer_dummy = util.generate_random_user_outer(total_floors)
         outer_traffic.update_table(outer_dummy)
+        outers[enum] = outer_traffic
+
+    with open(pwd / "data/outer.pickle", "wb") as f:
+        pickle.dump(outers, f)
 
 
 def predict(user_floor, elev_floor, total_floors, calls, time, direction):
-    # outer_traffic = outer.Outer(total_floors)
-    # inner_traffic = inner.Inner(total_floors)
     outer_traffics = None
     inner_traffics = None
 
-    pwd = Path(os.getcwd())
+    pwd = Path(os.path.dirname(__file__)).absolute()
 
     outer_traffic = None
     inner_traffics = None
@@ -119,6 +117,7 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         ret["id"] = eid
         ret["estimated_time"] = time
         ret["estimated_traffic"] = estimated_traffic
+        ret = json.dumps(ret)
         rets.append(ret)
 
     return rets
@@ -136,4 +135,3 @@ if __name__ == "__main__":
     initialize(e_num, total_floors)
     update_outer()
     print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
-
