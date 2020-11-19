@@ -17,6 +17,7 @@ def initialize(e_num, total_floors):
     outers = dict()
     inners = dict()
     pwd = Path(os.path.dirname(__file__)).absolute()
+    pwd.mkdir(parents=True, exist_ok=True)
 
     for eid in nums:
         outers[eid], inners[eid] = initialize_traffic(eid, total_floors)
