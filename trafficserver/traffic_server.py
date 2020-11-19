@@ -107,7 +107,6 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         inner_traffic_predict = inner_traffic.get_prediction(
             user_floor)
 
-<<<<<<< HEAD
         traffic_predict = dict()
         for floor, time in outer_traffic_predict.items():
             traffic_predict[floor] = time + inner_traffic_predict[floor]
@@ -131,14 +130,6 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         rets.append(ret)
 
     return rets
-=======
-    ret = dict()
-    ret["id"] = random.randint(1, 100)
-    ret["estimated_time"] = int(estimated_time*60)
-    ret["estimated_traffic"] = estimated_traffic
-
-    return ret
->>>>>>> tmp commit
 
 
 if __name__ == "__main__":
@@ -149,15 +140,7 @@ if __name__ == "__main__":
     time = 14
     UP = True
     DOWN = False
-<<<<<<< HEAD
     e_num = 4
     initialize(e_num, total_floors)
     update_outer()
     print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
-<<<<<<< HEAD
-=======
-
-=======
-    #print(main(user_floor, elev_floor, total_floors, calls, time, UP))
->>>>>>> tmp commit
->>>>>>> tmp commit
