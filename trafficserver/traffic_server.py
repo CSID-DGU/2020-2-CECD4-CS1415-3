@@ -5,15 +5,6 @@ import json
 from pprint import pprint
 from traffic import outer, inner
 import util
-<<<<<<< HEAD
-=======
-import random
-import sys
-"""
-Input:
-    [user_floor, elev_cur_floor, elev_info(calls,direction)]
-"""
->>>>>>> tmp commit
 
 
 def update_traffic():
@@ -91,7 +82,7 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         "exit_nums": 0
     })
 
-    rets = []
+    rets = dict()
 
     for eid in eids:
         outer_traffic = outer_traffics[eid]
@@ -124,11 +115,10 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         estimated_traffic = 3
 
         ret = dict()
-        ret["id"] = eid
         ret["estimated_time"] = time
         ret["estimated_traffic"] = estimated_traffic
-        ret = json.dumps(ret)
-        rets.append(ret)
+        #ret = json.dumps(ret)
+        rets[eid] = ret
 
     return rets
 
@@ -145,3 +135,4 @@ if __name__ == "__main__":
     initialize(e_num, total_floors)
     update_outer()
     print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
+
