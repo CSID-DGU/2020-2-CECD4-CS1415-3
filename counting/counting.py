@@ -107,24 +107,25 @@ while True:
 		centerPoint = (int(c1), int(c2))
 		cv2.putText(frame, str(track.track_id),centerPoint,0, 5e-3 * 200, (0,0,255),2)
 		cv2.circle(frame, centerPoint, 4, (0, 0, 255), -1)
-		if track.stateOutMetro == 1 and (H//4 - (int(bbox[3]) + int(bbox[1]))/2 < 0) and track.noConsider == False:
-			peopleOut += 1
-			if track.track_id not in res["p_exit"]:
-				res["p_exit"].append(track.track_id)
-			track.stateOutMetro = 0
-			track.noConsider = True
-			cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
-
-		if track.stateOutMetro == 0 and (H//4 - (int(bbox[3]) + int(bbox[1]))/2 >= 0) and track.noConsider == False :
+		# Step In
+		if track.stateOutMetro == 1 and (H//2 - (int(bbox[3]) + int(bbox[1]))/2 < 0) and track.noConsider == False:
 			peopleIn += 1
 			if track.track_id not in res["p_enter"]:
 				res["p_enter"].append(track.track_id)
+			track.stateOutMetro = 0
+			track.noConsider = True
+			cv2.line(frame, (0, H//2), (W, H//2), (0, 0, 0), 2)
+		# Step out
+		if track.stateOutMetro == 0 and (H//2 - (int(bbox[3]) + int(bbox[1]))/2 >= 0) and track.noConsider == False :
+			peopleOut += 1
+			if track.track_id not in res["p_exit"]:
+				res["p_exit"].append(track.track_id)
 			track.stateOutMetro = 1
 			track.noConsider = True
 			#cv2.line(frame, (0, H // 2 +50), (W, H // 2 +50), (0, 0, 0), 2)
-			cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
+			cv2.line(frame, (0, H//2), (W, H//2), (0, 0, 0), 2)
 
-	cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
+	cv2.line(frame, (0, H//2), (W, H//2), (0, 0, 0), 2)
 
 	info = [
 		("People Count In", peopleIn),
@@ -161,4 +162,5 @@ if writeVideo_flag:
 	list_file.close()
 cv2.destroyAllWindows()
 res_json = json.dumps(res)
-return res_json
+print(res_json)
+

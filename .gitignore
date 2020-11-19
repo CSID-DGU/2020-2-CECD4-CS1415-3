@@ -1,2 +1,5 @@
 **/__pycache__
 **/*.pickle
+**/*.h5
+**/*.pb
+**/*.avi

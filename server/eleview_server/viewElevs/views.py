@@ -7,7 +7,7 @@ import json
 import sys
 sys.path.append('/Users/uknow/Desktop/종설/2020-1-CECD2-CS1415-1/trafficserver')
 import traffic_server as ts
-
+import random
 # Create your views here.
 # 여러 엘리베이터의 현재 정보를 JSON에 담아 IOS로 보내줌
 class elevatorView(APIView):
@@ -20,6 +20,7 @@ class elevatorView(APIView):
         time = 14
         UP = True
         DOWN = False
-        res = (ts.main(user_floor, elev_floor, total_floors, calls, time, UP))
+        res = ts.main(user_floor, elev_floor, total_floors, calls, time, UP)
         print(res)
+
         return JsonResponse(res, safe=False)
