@@ -26,3 +26,19 @@ class elevatorView(APIView):
         res = ts.predict(user_floor, elev_floor, total_floors, calls, time, UP)
         print(res)        
         return JsonResponse(res, safe=False)
+
+    def post(self, request):
+        request = json.loads(request.body)
+        loc = int(request["l"])
+        dest = int(request["d"])
+        total_floors = 15
+        calls = [2, 5, 7]
+        time = 14
+        UP = True
+        DOWN = False
+        e_num = 4
+        ts.initialize(e_num, total_floors)
+        ts.update_outer(total_floors)
+        print(loc, dest)
+        res = ts.predict(loc, dest, total_floors, calls, time, UP)
+        return JsonResponse(res, safe=False)
