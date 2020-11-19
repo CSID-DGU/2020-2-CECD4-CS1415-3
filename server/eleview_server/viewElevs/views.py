@@ -20,7 +20,9 @@ class elevatorView(APIView):
         time = 14
         UP = True
         DOWN = False
-        res = ts.main(user_floor, elev_floor, total_floors, calls, time, UP)
-        print(res)
-
+        e_num = 4
+        ts.initialize(e_num, total_floors)
+        ts.update_outer(total_floors)
+        res = ts.predict(user_floor, elev_floor, total_floors, calls, time, UP)
+        print(json.dumps(res))        
         return JsonResponse(res, safe=False)
