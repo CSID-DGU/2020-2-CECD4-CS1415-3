@@ -23,10 +23,10 @@ from deep_sort.detection import Detection as ddet
 yolo = YOLO()
 # Arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--input", required = True, type=str,
-	help="Path Video Input")
-ap.add_argument("-n", "--number", type = str, 
-	help= 'Number of sample')
+ap.add_argument("-i", "--input", required=True, type=str,
+                help="Path Video Input")
+ap.add_argument("-n", "--number", type=str,
+                help='Number of sample')
 
 args = vars(ap.parse_args())
 
@@ -47,118 +47,113 @@ peopleIn = 0
 model_filename = 'model_data/mars-small128.pb'
 encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
-metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
+metric = nn_matching.NearestNeighborDistanceMetric(
+    "cosine", max_cosine_distance, nn_budget)
 tracker = Tracker(metric)
 
-writeVideo_flag = True 
+writeVideo_flag = True
 
 video_capture = cv2.VideoCapture(args['input'])
 
 if writeVideo_flag:
-	w = int(video_capture.get(3))
-	h = int(video_capture.get(4))
-	fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-	out = cv2.VideoWriter('Sample_Video{}.avi'.format(args['number']), fourcc, 15, (w, h))
-	list_file = open('detection.txt', 'w')
-	frame_index = -1  
-	
+    w = int(video_capture.get(3))
+    h = int(video_capture.get(4))
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    out = cv2.VideoWriter('Sample_Video{}.avi'.format(
+        args['number']), fourcc, 15, (w, h))
+    list_file = open('detection.txt', 'w')
+    frame_index = -1
+
 fps = 0.0
 W = None
 H = None
-res = dict()
-res["p_enter"] = []
-res["p_exit"] = []
+# res = dict()
+# res["p_enter"] = []
+# res["p_exit"] = []
+cache = dict()
 while True:
 
-	ret, frame = video_capture.read()  
-	if ret != True:
-		break
-	t1 = time.time()
-	if W is None or H is None:
-		(H, W) = frame.shape[:2]
+    ret, frame = video_capture.read()
+    if ret != True:
+        break
+    t1 = time.time()
+    if W is None or H is None:
+        (H, W) = frame.shape[:2]
 
-	image = Image.fromarray(frame[...,::-1]) #bgr to rgb
-	boxs = yolo.detect_image(image)
-	#print("box_num",len(boxs))
-	features = encoder(frame,boxs)
-	
-	# Score a 1.0
-	detections = [Detection(bbox, 1.0, feature) for bbox, feature in zip(boxs, features)]
-	#rects = []
-	# Run non-maxima suppression.
-	boxes = np.array([d.tlwh for d in detections])
-	scores = np.array([d.confidence for d in detections])
-	indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
-	detections = [detections[i] for i in indices]
-	
-	#  Call the tracker
-	tracker.predict()
-	tracker.update(detections, H)
+    image = Image.fromarray(frame[..., ::-1])  # bgr to rgb
+    boxs = yolo.detect_image(image)
+    # print("box_num",len(boxs))
+    features = encoder(frame, boxs)
 
-	for track in tracker.tracks:
-		if not track.is_confirmed() or track.time_since_update > 1:
-			continue 
-		bbox = track.to_tlbr()
+    # Score a 1.0
+    detections = [Detection(bbox, 1.0, feature)
+                  for bbox, feature in zip(boxs, features)]
+    #rects = []
+    # Run non-maxima suppression.
+    boxes = np.array([d.tlwh for d in detections])
+    scores = np.array([d.confidence for d in detections])
+    indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
+    detections = [detections[i] for i in indices]
 
-		# w 중심점
-		c1 = (int(bbox[0]) + int(bbox[2]))/2
-		# h 중심점
-		c2 = (int(bbox[1]) + int(bbox[3]))/2
-		centerPoint = (int(c1), int(c2))
-		cv2.putText(frame, str(track.track_id),centerPoint,0, 5e-3 * 200, (0,0,255),2)
-		cv2.circle(frame, centerPoint, 4, (0, 0, 255), -1)
-		if track.stateOutMetro == 1 and (H//4 - (int(bbox[3]) + int(bbox[1]))/2 < 0) and track.noConsider == False:
-			peopleOut += 1
-			if track.track_id not in res["p_exit"]:
-				res["p_exit"].append(track.track_id)
-			track.stateOutMetro = 0
-			track.noConsider = True
-			cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
+    #  Call the tracker
+    tracker.predict()
+    tracker.update(detections, H)
+    HOR = H//3 - 10
 
-		if track.stateOutMetro == 0 and (H//4 - (int(bbox[3]) + int(bbox[1]))/2 >= 0) and track.noConsider == False :
-			peopleIn += 1
-			if track.track_id not in res["p_enter"]:
-				res["p_enter"].append(track.track_id)
-			track.stateOutMetro = 1
-			track.noConsider = True
-			#cv2.line(frame, (0, H // 2 +50), (W, H // 2 +50), (0, 0, 0), 2)
-			cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
+    for track in tracker.tracks:
+        if not track.is_confirmed() or track.time_since_update > 1:
+            continue
+        bbox = track.to_tlbr()
 
-	cv2.line(frame, (0, H//4), (W, H//4), (0, 0, 0), 2)
+        c1 = (int(bbox[0]) + int(bbox[2]))/2
+        c2 = (int(bbox[1]) + int(bbox[3]))/2
+        centerPoint = (int(c1), int(c2))
+        cv2.putText(frame, str(track.track_id), centerPoint,
+                    0, 5e-3 * 200, (0, 0, 255), 2)
+        cv2.circle(frame, centerPoint, 4, (0, 0, 255), -1)
+        if track.track_id not in cache:
+            cache[track.track_id] = track.stateOutMetro
 
-	info = [
-		("People Count In", peopleIn),
-		("People Count Out", peopleOut)
-	]
+        if cache[track.track_id] and HOR > c2 and track.noConsider == False:
+            peopleOut += 1
+            track.stateOutMetro = 0
+            track.noConsider = True
+            cv2.line(frame, (0, HOR), (W, HOR), (0, 0, 0), 2)
 
+        if cache[track.track_id] == 0 and HOR <= c2 and track.noConsider == False:
+            peopleIn += 1
+            track.stateOutMetro = 1
+            track.noConsider = True
+            cv2.line(frame, (0, HOR), (W, HOR), (0, 0, 0), 2)
 
-	for (i, (k, v)) in enumerate(info):
-		text = "{}: {}".format(k, v)
-		cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
-			cv2.FONT_HERSHEY_SIMPLEX, 1.1, (0, 0, 255), 2)
+    cv2.line(frame, (0, HOR), (W, HOR), (0, 0, 0), 2)
 
+    info = [
+        ("People Count In", peopleIn),
+        ("People Count Out", peopleOut)
+    ]
 
-	cv2.imshow('', frame)
-	
-	if writeVideo_flag:
-		out.write(frame)
-		frame_index = frame_index + 1
-		list_file.write(str(frame_index)+' ')
-		if len(boxs) != 0:
-			for i in range(0,len(boxs)):
-				list_file.write(str(boxs[i][0]) + ' '+str(boxs[i][1]) + ' '+str(boxs[i][2]) + ' '+str(boxs[i][3]) + ' ')
-		list_file.write('\n')
-		
-	fps  = ( fps + (1./(time.time()-t1)) ) / 2
-	print("FPS= %f"%(fps))
-	
-	
-	if cv2.waitKey(1) & 0xFF == ord('q'):
-		break
+    for (i, (k, v)) in enumerate(info):
+        text = "{}: {}".format(k, v)
+        cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.1, (0, 0, 255), 2)
+
+    cv2.imshow('', frame)
+
+    if writeVideo_flag:
+        out.write(frame)
+        frame_index = frame_index + 1
+        list_file.write(str(frame_index)+' ')
+        if len(boxs) != 0:
+            for i in range(0, len(boxs)):
+                list_file.write(str(boxs[i][0]) + ' '+str(boxs[i][1]) +
+                                ' '+str(boxs[i][2]) + ' '+str(boxs[i][3]) + ' ')
+        list_file.write('\n')
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 video_capture.release()
 if writeVideo_flag:
-	out.release()
-	list_file.close()
+    out.release()
+    list_file.close()
 cv2.destroyAllWindows()
-res_json = json.dumps(res)
-return res_json
