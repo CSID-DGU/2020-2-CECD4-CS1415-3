@@ -118,9 +118,11 @@ def predict(user_floor, elev_floor, total_floors, calls, time, direction):
         ret["estimated_time"] = time
         ret["estimated_traffic"] = estimated_traffic
         #ret = json.dumps(ret)
-        rets[eid] = ret
-
-    return rets
+        rets[eid+1] = ret
+    ret_dic = dict()
+    for k, v in sorted(rets.items(), key=lambda x: x[0]):
+        ret_dic[k] = v
+    return ret_dic
 
 
 if __name__ == "__main__":
@@ -135,4 +137,3 @@ if __name__ == "__main__":
     initialize(e_num, total_floors)
     update_outer()
     print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
-
