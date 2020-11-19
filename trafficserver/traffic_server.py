@@ -42,7 +42,7 @@ def initialize_traffic(eid, total_floors):
     return outer.Outer(total_floors), inner.Inner(total_floors)
 
 
-def update_outer():
+def update_outer(total_floors):
     pwd = Path(os.path.dirname(__file__)).absolute()
     outer_traffics = None
     with open(pwd/"data/outer.pickle", "rb") as f:
@@ -136,4 +136,5 @@ if __name__ == "__main__":
     e_num = 4
     initialize(e_num, total_floors)
     update_outer()
+
     print(predict(user_floor, elev_floor, total_floors, calls, time, UP))
