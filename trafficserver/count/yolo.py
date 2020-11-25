@@ -8,15 +8,16 @@ import colorsys
 import os
 import random
 from timeit import time
-from timeit import default_timer as timer  ### to calculate FPS
+from timeit import default_timer as timer  # to calculate FPS
 
 import numpy as np
 from keras import backend as K
 from keras.models import load_model
 from PIL import Image, ImageFont, ImageDraw
 import tensorflow as tf
-from yolo3.model import yolo_eval
-from yolo3.utils import letterbox_image
+from .yolo3.model import yolo_eval
+from .yolo3.utils import letterbox_image
+
 
 class YOLO(object):
     def __init__(self):
@@ -28,7 +29,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = tf.compat.v1.keras.backend.get_session()
-        self.model_image_size = (416, 416) # fixed size or (None, None)
+        self.model_image_size = (416, 416)  # fixed size or (None, None)
         self.is_fixed_size = self.model_image_size != (None, None)
         self.boxes, self.scores, self.classes = self.generate()
 
@@ -62,31 +63,33 @@ class YOLO(object):
             map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)),
                 self.colors))
         random.seed(10101)  # Fixed seed for consistent colors across runs.
-        random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
+        # Shuffle colors to decorrelate adjacent classes.
+        random.shuffle(self.colors)
         random.seed(None)  # Reset seed to default.
 
         # Generate output tensor targets for filtered bounding boxes.
         self.input_image_shape = K.placeholder(shape=(2, ))
         boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
-                len(self.class_names), self.input_image_shape,
-                score_threshold=self.score, iou_threshold=self.iou)
+                                           len(self.class_names), self.input_image_shape,
+                                           score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
 
     def detect_image(self, image):
         if self.is_fixed_size:
-            assert self.model_image_size[0]%32 == 0, 'Multiples of 32 required'
-            assert self.model_image_size[1]%32 == 0, 'Multiples of 32 required'
-            boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))
+            assert self.model_image_size[0] % 32 == 0, 'Multiples of 32 required'
+            assert self.model_image_size[1] % 32 == 0, 'Multiples of 32 required'
+            boxed_image = letterbox_image(
+                image, tuple(reversed(self.model_image_size)))
         else:
             new_image_size = (image.width - (image.width % 32),
                               image.height - (image.height % 32))
             boxed_image = letterbox_image(image, new_image_size)
         image_data = np.array(boxed_image, dtype='float32')
 
-        #print(image_data.shape)
+        # print(image_data.shape)
         image_data /= 255.
         image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
-        
+
         out_boxes, out_scores, out_classes = self.sess.run(
             [self.boxes, self.scores, self.classes],
             feed_dict={
@@ -97,21 +100,21 @@ class YOLO(object):
         return_boxs = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
-            if predicted_class != 'person' :
+            if predicted_class != 'person':
                 continue
             box = out_boxes[i]
-           # score = out_scores[i]  
-            x = int(box[1])  
-            y = int(box[0])  
+           # score = out_scores[i]
+            x = int(box[1])
+            y = int(box[0])
             w = int(box[3]-box[1])
             h = int(box[2]-box[0])
-            if x < 0 :
+            if x < 0:
                 w = w + x
                 x = 0
-            if y < 0 :
+            if y < 0:
                 h = h + y
-                y = 0 
-            return_boxs.append([x,y,w,h])
+                y = 0
+            return_boxs.append([x, y, w, h])
 
         return return_boxs
 
