@@ -133,21 +133,23 @@ class Tracker:
         unmatched_tracks = list(set(unmatched_tracks_a + unmatched_tracks_b))
         return matches, unmatched_tracks, unmatched_detections
 
-    def _initiate_track(self, detection, H ):
+    def _initiate_track(self, detection, H):
         mean, covariance = self.kf.initiate(detection.to_xyah())
         t = Track(
             mean, covariance, self._next_id, self.n_init, self.max_age,
             detection.feature)
         box_t = t.to_tlbr()
+        startX, endX = int(box_t[0]), int(box_t[2])
         startY, endY = int(box_t[1]), int(box_t[3])
         yMidT = (endY + startY)/2
+        xMidT = (endX + startX)/2
         stateOutMetro = None
-        if (H/2 +50 - yMidT)>=0:
+        if yMidT >= (H//4):
             stateOutMetro = 1
-        elif (H/2 +50 - yMidT)<=0:
+        elif yMidT < (H//4):
             stateOutMetro = 0
 
         self.tracks.append(Track(
             mean, covariance, self._next_id, self.n_init, self.max_age,
-            detection.feature, stateOutMetro, noConsider = False))
+            detection.feature, stateOutMetro, noConsider=False))
         self._next_id += 1
