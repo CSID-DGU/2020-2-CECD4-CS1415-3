@@ -21,9 +21,10 @@ from .yolo3.utils import letterbox_image
 
 class YOLO(object):
     def __init__(self):
-        self.model_path = 'model_data/yolo.h5'
-        self.anchors_path = 'model_data/yolo_anchors.txt'
-        self.classes_path = 'model_data/coco_classes.txt'
+        dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
+        self.model_path = dir_path + 'model_data/yolo.h5'
+        self.anchors_path = dir_path + 'model_data/yolo_anchors.txt'
+        self.classes_path = dir_path + 'model_data/coco_classes.txt'
         self.score = 0.5
         self.iou = 0.5
         self.class_names = self._get_class()
@@ -35,6 +36,8 @@ class YOLO(object):
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
+        print("==============================================================")
+        print(classes_path)
         with open(classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]

@@ -22,6 +22,8 @@ from .deep_sort.detection import Detection as ddet
 
 
 def run(input_dir):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    input_dir = dir_path + "/sample/"+input_dir
     yolo = YOLO()
 # Arguments
     ap = argparse.ArgumentParser()
@@ -45,7 +47,7 @@ def run(input_dir):
     peopleIn = 0
 
 # DeepSort Loading
-    model_filename = 'model_data/mars-small128.pb'
+    model_filename = dir_path + "/" + 'model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename, batch_size=1)
 
     metric = nn_matching.NearestNeighborDistanceMetric(
@@ -100,7 +102,7 @@ def run(input_dir):
         #  Call the tracker
         tracker.predict()
         tracker.update(detections, H)
-        HOR = H//3 - 10
+        HOR = H//2
 
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
@@ -122,7 +124,7 @@ def run(input_dir):
                 track.noConsider = True
                 cv2.line(frame, (0, HOR), (W, HOR), (0, 0, 0), 2)
 
-            if cache[track.track_id] == 0 and HOR <= c2 and track.noConsider == False:
+            elif cache[track.track_id] == 0 and HOR <= c2 and track.noConsider == False:
                 peopleIn += 1
                 track.stateOutMetro = 1
                 track.noConsider = True
@@ -159,4 +161,4 @@ def run(input_dir):
         out.release()
         list_file.close()
     cv2.destroyAllWindows()
-    return {"eneter": peopleIn, "exit": peopleOut}
+    return {"enter": peopleIn, "exit": peopleOut}
